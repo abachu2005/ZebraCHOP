@@ -1,0 +1,10 @@
+{
+  "PATH": {
+    "BOWTIE": "",
+    "TWOBITTOFA": "",
+    "TWOBIT_INDEX_DIR": "",
+    "BOWTIE_INDEX_DIR": "",
+    "GENE_TABLE_INDEX_DIR": ""
+  },
+  "THREADS": 1
+}
