@@ -1,0 +1,6 @@
+# ZebraCHOP web frontend (Python 3.9+)
+# The frontend shells out to the Python 2.7 ZebraCHOP CLI as a subprocess.
+fastapi>=0.104
+uvicorn[standard]>=0.24
+python-multipart>=0.0.6
+requests>=2.28

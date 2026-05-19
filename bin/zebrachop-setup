@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""ZebraCHOP interactive setup wizard (Python 3).
+
+Detects the toolchain needed by the Python 2.7 CHOPCHOP engine and writes
+``config_local.json`` so the CLI and the web frontend can find everything.
+
+Steps:
+  1. Check Python 2.7 and Python 3.9+
+  2. Detect bowtie, twoBitToFa, primer3 (or accept a custom path)
+  3. Optionally download the danRer11 2bit + bowtie index into ./indexes/
+  4. Write config_local.json
+  5. Smoke test (a one-gene dry-run unless --skip-test)
+
+Run with:  python3 bin/zebrachop-setup
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+CFG_FILE = ROOT / "config_local.json"
+
+
+def c(s, code): return f"\033[{code}m{s}\033[0m"
+def info(s):  print(c("›", "36") + " " + s)
+def ok(s):    print(c("✓", "32") + " " + s)
+def warn(s):  print(c("!", "33") + " " + s)
+def err(s):   print(c("✗", "31") + " " + s)
+def step(t):  print("\n" + c(f"━━ {t} ", "36") + c("━" * max(0, 60 - len(t)), "36"))
+
+
+def yes(q, default=True):
+    s = " [Y/n] " if default else " [y/N] "
+    a = input(q + s).strip().lower()
+    return default if not a else a.startswith("y")
+
+
+def ask(q, default=None):
+    s = f" [{default}] " if default else " "
+    return (input(q + ":" + s).strip() or default or "")
+
+
+def find_python2():
+    step("Python 2.7 (ZebraCHOP CLI)")
+    for cand in ("python2", "python2.7"):
+        path = shutil.which(cand)
+        if path:
+            try:
+                v = subprocess.check_output([path, "--version"], stderr=subprocess.STDOUT, text=True).strip()
+                ok(f"{path} → {v}")
+                return path
+            except subprocess.CalledProcessError:
+                continue
+    warn("No python2/python2.7 on PATH.")
+    custom = ask("Path to Python 2.7 interpreter (leave blank to skip)")
+    return custom or None
+
+
+def find_tool(name, friendly):
+    p = shutil.which(name)
+    if p:
+        ok(f"{friendly}: {p}")
+        return p
+    warn(f"{friendly} not on PATH.")
+    custom = ask(f"Path to {name} (leave blank to skip)")
+    return custom or ""
+
+
+def maybe_download_index(target_dir: Path):
+    step("Reference data (danRer11)")
+    if not yes("Do you want to download the danRer11 2bit + bowtie index now?", default=False):
+        warn("Skipping. You'll need to set TWOBIT_INDEX_DIR + BOWTIE_INDEX_DIR manually later.")
+        return None, None
+    target_dir.mkdir(parents=True, exist_ok=True)
+    twobit = target_dir / "danRer11.2bit"
+    url = "https://hgdownload.soe.ucsc.edu/goldenPath/danRer11/bigZips/danRer11.2bit"
+    if not twobit.exists():
+        info(f"Downloading {url}")
+        try:
+            urllib.request.urlretrieve(url, str(twobit))
+            ok(f"Saved {twobit} ({twobit.stat().st_size/1e6:.1f} MB)")
+        except Exception as e:
+            err(f"Download failed: {e}")
+            return None, None
+    else:
+        ok(f"{twobit} already present")
+    warn("Bowtie indexes for zebrafish are large (~3 GB) and must be built with the bowtie-build tool against the genome FASTA. Run:")
+    print("    twoBitToFa indexes/danRer11.2bit indexes/danRer11.fa")
+    print("    bowtie-build indexes/danRer11.fa indexes/danRer11")
+    return str(target_dir.resolve()), str(target_dir.resolve())
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--skip-test", action="store_true")
+    args = ap.parse_args()
+
+    print(c("ZebraCHOP setup wizard", "1;36"))
+    print(c("─" * 36, "36"))
+
+    py2 = find_python2()
+
+    step("External binaries")
+    bowtie = find_tool("bowtie", "bowtie (off-target search)")
+    twobit = find_tool("twoBitToFa", "twoBitToFa (UCSC kent)")
+    primer3 = find_tool("primer3_core", "primer3 (optional primer design)")
+
+    step("Index directories")
+    gene_table_dir = ROOT / "genetable"
+    if not gene_table_dir.exists():
+        warn(f"{gene_table_dir} missing — clone the repo afresh or download danRer11.gene_table.")
+    else:
+        ok(f"Gene table dir: {gene_table_dir}")
+
+    twobit_idx, bowtie_idx = "", ""
+    if yes("Download the danRer11 reference now? (skip if you already have indexes)", default=False):
+        twobit_idx, bowtie_idx = maybe_download_index(ROOT / "indexes")
+    else:
+        twobit_idx = ask("Path to .2bit directory (TWOBIT_INDEX_DIR)", "")
+        bowtie_idx = ask("Path to bowtie index directory (BOWTIE_INDEX_DIR)", "")
+
+    cfg = {
+        "PATH": {
+            "BOWTIE": bowtie,
+            "TWOBITTOFA": twobit,
+            "PRIMER3": primer3,
+            "TWOBIT_INDEX_DIR": twobit_idx,
+            "BOWTIE_INDEX_DIR": bowtie_idx,
+            "GENE_TABLE_INDEX_DIR": str(gene_table_dir),
+        },
+        "THREADS": int(ask("Threads", "4") or "4"),
+        "PYTHON2": py2 or "python2",
+    }
+    CFG_FILE.write_text(json.dumps(cfg, indent=2))
+    ok(f"Wrote {CFG_FILE}")
+
+    if not args.skip_test and py2 and bowtie and twobit and twobit_idx and bowtie_idx:
+        step("Smoke test (designing for one gene)")
+        cmd = [py2, "chopchop.py", "-Target", "rx3", "-G", "danRer11", "-J"]
+        info(" ".join(cmd) + "  (Ctrl-C to skip)")
+        try:
+            r = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, timeout=120)
+            if r.returncode == 0:
+                ok("Smoke test passed")
+            else:
+                err("Smoke test failed:"); print(r.stderr[-1200:])
+        except subprocess.TimeoutExpired:
+            warn("Smoke test timed out (>2 min). Skipping.")
+        except KeyboardInterrupt:
+            warn("Smoke test skipped.")
+
+    step("All set")
+    print("\nLaunch the web UI:")
+    print(c("  bash frontend/run.sh", "32"))
+    print("\nOr run a quick CLI batch:")
+    print(c(f"  {py2 or 'python2'} chopchop_query.py --gene_names rx3 -o results/ -- -G danRer11", "32"))
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        err("\nAborted."); sys.exit(130)

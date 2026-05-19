@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# Local config (paths to your bowtie/twoBitToFa binaries, indexes, etc.)
+config_local.json
+
+# Reference data (download via bin/zebrachop-setup)
+indexes/
+*.2bit
+*.ebwt
+*.bt2
+
+# Runtime job data
+frontend/data/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Models (download separately)
+models/

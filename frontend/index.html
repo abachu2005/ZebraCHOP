@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ZebraCHOP — zebrafish gRNA design</title>
+<style>
+  :root {
+    --bg: #f4f6fa; --panel: #ffffff; --border: #d8dee9; --text: #1a202c; --muted: #5a6473;
+    --accent: #0ea5e9; --accent2: #0284c7; --ok: #16a34a; --warn: #d97706; --err: #dc2626;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; }
+  header { padding: 22px 32px; background: var(--panel); border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 20px; margin: 0; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  header a.btn { background: var(--accent); color: #fff; padding: 7px 14px; border-radius: 6px;
+    text-decoration: none; font-size: 13px; font-weight: 600; }
+  .container { max-width: 1280px; margin: 0 auto; padding: 28px 32px; display: grid;
+    grid-template-columns: 380px 1fr; gap: 24px; }
+  @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 22px; }
+  .panel h2 { font-size: 13px; margin: 0 0 14px; color: var(--muted); text-transform: uppercase;
+    letter-spacing: 0.5px; font-weight: 700; }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 5px; }
+  input[type=text], input[type=number], textarea, select {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 13px; background: #fafbfd; font-family: var(--mono); }
+  textarea { min-height: 90px; resize: vertical; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn { background: var(--accent); color: #fff; border: 0; padding: 10px 20px;
+    border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn:hover { background: var(--accent2); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: #fff; border: 1px solid var(--border); color: var(--text); }
+  .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+  .pill { font-size: 11px; padding: 3px 8px; border-radius: 99px; background: #eef2f7; color: var(--muted); }
+  .pill.running { background: #dbeafe; color: #1e40af; }
+  .pill.done { background: #dcfce7; color: #166534; }
+  .pill.error { background: #fee2e2; color: #991b1b; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12.5px; }
+  th, td { padding: 7px 9px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: #f8fafc; font-size: 11px; text-transform: uppercase; color: var(--muted); }
+  td { font-family: var(--mono); }
+  .empty { color: var(--muted); padding: 30px; text-align: center; }
+  .wizard { background: #fff7ed; border: 1px solid #fde68a; padding: 14px 18px; border-radius: 8px;
+    margin-bottom: 16px; font-size: 13px; }
+  .wizard b { color: #92400e; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 6px; overflow-x: auto;
+    font-size: 12px; }
+  .gene-tabs { display: flex; gap: 4px; margin: 12px 0 0; flex-wrap: wrap; }
+  .gene-tab { padding: 6px 12px; background: #eef2f7; border-radius: 6px; cursor: pointer; font-size: 12px;
+    font-family: var(--mono); }
+  .gene-tab.active { background: var(--accent); color: #fff; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>ZebraCHOP</h1>
+    <div class="sub">CRISPR gRNA design for zebrafish (Danio rerio)</div>
+  </div>
+  <div>
+    <a class="btn" href="https://github.com/abachu2005/ZebraCHOP" target="_blank">GitHub</a>
+  </div>
+</header>
+
+<div class="container">
+  <div>
+    <div id="wizardBanner" class="wizard" style="display:none;">
+      <b>First-time setup needed.</b> Run <code>python3 bin/zebrachop-setup</code> in your terminal —
+      it'll detect <code>bowtie</code> / <code>twoBitToFa</code> / <code>primer3</code>, help download the
+      <code>danRer11</code> 2bit + bowtie index, and write <code>config_local.json</code> for you.
+    </div>
+
+    <div class="panel">
+      <h2>Design guide RNAs</h2>
+      <label>Gene name(s)</label>
+      <textarea id="genes" placeholder="rx3&#10;tbx16&#10;tbxta"></textarea>
+
+      <div class="row2">
+        <div>
+          <label>Genome</label>
+          <select id="genome">
+            <option value="danRer11" selected>danRer11 (GRCz11)</option>
+            <option value="danRer10">danRer10</option>
+          </select>
+        </div>
+        <div>
+          <label>Mode</label>
+          <select id="mode">
+            <option value="1" selected>Cas9</option>
+            <option value="2">TALEN</option>
+            <option value="3">Cpf1</option>
+            <option value="4">Nickase</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label>Guide length</label>
+          <input id="guide_size" type="number" value="20" min="18" max="25" />
+        </div>
+        <div>
+          <label>Scoring</label>
+          <select id="scoring_method">
+            <option value="DOENCH_2016" selected>Doench 2016 (recommended)</option>
+            <option value="XU_2015">Xu 2015</option>
+            <option value="G_20">G_20</option>
+            <option value="MORENO_MATEOS_2015">Moreno-Mateos 2015</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="runBtn">Design guides</button>
+        <button class="btn btn-secondary" onclick="loadSample()">Load sample (rx3,tbx16)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Results <span id="statePill" class="pill" style="margin-left:8px;">idle</span></h2>
+    <div id="empty" class="empty">Enter gene names on the left and click <b>Design guides</b>. Results appear here as each gene finishes.</div>
+    <div id="results" style="display:none;">
+      <div class="gene-tabs" id="geneTabs"></div>
+      <div id="tableHolder"></div>
+      <div class="btn-row">
+        <a id="dlBtn" class="btn btn-secondary" href="#" style="text-decoration:none; display:none;">Download TSV</a>
+        <a id="logBtn" class="btn btn-secondary" href="#" target="_blank" style="text-decoration:none;">View run log</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let currentJob = null;
+let resultsCache = {};
+
+async function init() {
+  const cfg = await fetch('/api/config').then(r => r.ok ? r.json() : null);
+  const incomplete = !cfg || !cfg.PATH || !cfg.PATH.BOWTIE || !cfg.PATH.TWOBITTOFA;
+  if (incomplete) $('wizardBanner').style.display = 'block';
+}
+init();
+
+function loadSample() { $('genes').value = 'rx3\ntbx16'; }
+
+$('runBtn').addEventListener('click', async () => {
+  const fd = new FormData();
+  fd.append('gene_names', $('genes').value);
+  fd.append('genome', $('genome').value);
+  fd.append('mode', $('mode').value);
+  fd.append('guide_size', $('guide_size').value);
+  fd.append('scoring_method', $('scoring_method').value);
+  $('runBtn').disabled = true;
+  setState('queued');
+  const r = await fetch('/api/jobs', { method: 'POST', body: fd });
+  if (!r.ok) {
+    setState('error');
+    $('runBtn').disabled = false;
+    alert(await r.text());
+    return;
+  }
+  const { job_id } = await r.json();
+  currentJob = job_id;
+  $('logBtn').href = '/api/jobs/' + job_id + '/log';
+  poll();
+});
+
+function setState(s) {
+  const p = $('statePill');
+  p.textContent = s;
+  p.className = 'pill ' + (s === 'running' ? 'running' : s === 'done' ? 'done' : s === 'error' ? 'error' : '');
+}
+
+async function poll() {
+  const r = await fetch('/api/jobs/' + currentJob);
+  if (!r.ok) return;
+  const j = await r.json();
+  setState(j.state);
+  if (j.state === 'queued' || j.state === 'running') {
+    setTimeout(poll, 1200);
+  } else if (j.state === 'done') {
+    $('runBtn').disabled = false;
+    await renderResults();
+  } else {
+    $('runBtn').disabled = false;
+    $('empty').innerHTML = '<pre style="text-align:left;">' + (j.error || 'Job failed.') + '</pre>';
+    $('empty').style.display = 'block';
+    $('results').style.display = 'none';
+  }
+}
+
+async function renderResults() {
+  const r = await fetch('/api/jobs/' + currentJob + '/results');
+  if (!r.ok) return;
+  resultsCache = await r.json();
+  const genes = Object.keys(resultsCache);
+  if (!genes.length) {
+    $('empty').textContent = 'No TSV results produced. Check the run log.';
+    return;
+  }
+  $('empty').style.display = 'none';
+  $('results').style.display = 'block';
+  $('geneTabs').innerHTML = '';
+  genes.forEach((g, i) => {
+    const t = document.createElement('div');
+    t.className = 'gene-tab' + (i === 0 ? ' active' : '');
+    t.textContent = g;
+    t.onclick = () => { showGene(g); document.querySelectorAll('.gene-tab').forEach(x => x.classList.toggle('active', x.textContent === g)); };
+    $('geneTabs').appendChild(t);
+  });
+  showGene(genes[0]);
+  $('dlBtn').style.display = '';
+}
+
+function showGene(g) {
+  const data = resultsCache[g];
+  const cols = data.header.slice(0, 8);
+  let html = '<table><thead><tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+  data.rows.forEach(row => {
+    html += '<tr>' + cols.map(c => `<td>${row[c] ?? ''}</td>`).join('') + '</tr>';
+  });
+  html += '</tbody></table>';
+  $('tableHolder').innerHTML = html;
+  $('dlBtn').href = '/api/jobs/' + currentJob + '/tsv/' + g;
+}
+</script>
+</body>
+</html>
