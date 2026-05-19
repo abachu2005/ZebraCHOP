@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zebrachop"
-version = "1.0.0"
+version = "1.0.1"
 description = "CRISPR gRNA design for zebrafish with Ensembl-aware filtering — Python 3 frontend wrapping the CHOPCHOP engine."
 readme = "README.md"
 license = { file = "LICENSE" }
