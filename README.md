@@ -119,4 +119,4 @@ If you use ZebraCHOP, please cite the upstream CHOPCHOP paper (Labun *et al.*, N
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE). Portions of the code derive from CHOPCHOP (MIT) and from Microsoft's Azimuth (BSD 3-Clause); see in-file headers for attributions.
+MIT — see [`LICENSE`](LICENSE). Portions of the code derive from CHOPCHOP (MIT) and from Microsoft's Azimuth (BSD 3-Clause); see [`NOTICE`](NOTICE) and in-file headers for attributions.

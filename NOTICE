@@ -1,0 +1,25 @@
+ZebraCHOP
+Copyright (c) 2024 Abhinav Bachu
+
+This product is distributed under the terms of the MIT License — see the
+LICENSE file for details.
+
+This product includes software derived from third-party projects:
+
+1. CHOPCHOP (MIT License)
+   - Reference: Labun K, Montague TG, Krause M, et al. "CHOPCHOP v3:
+     expanding the CRISPR web toolbox beyond genome editing."
+     Nucleic Acids Research, 47(W1):W171-W174 (2019).
+     https://doi.org/10.1093/nar/gkz365
+   - Source files derived from CHOPCHOP: chopchop.py, chopchop_query.py
+   - Upstream: https://chopchop.cbu.uib.no/
+
+2. Azimuth (BSD 3-Clause License)
+   - Microsoft Research.
+     "Optimized sgRNA design to maximize activity and minimize off-target
+     effects of CRISPR-Cas9."
+   - Source files derived from Azimuth: featurization.py
+   - Upstream: https://github.com/MicrosoftResearch/Azimuth
+
+The full original license texts for these upstream projects are reproduced
+in the headers of the corresponding source files.

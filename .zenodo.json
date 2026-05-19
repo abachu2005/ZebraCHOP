@@ -1,0 +1,33 @@
+{
+  "title": "ZebraCHOP: CRISPR guide-RNA design for zebrafish with Ensembl-aware filtering",
+  "description": "ZebraCHOP is a zebrafish-focused fork of CHOPCHOP that designs CRISPR gRNAs for any Danio rerio gene, scores them with published efficiency models, maps off-targets with Bowtie, and applies an Ensembl-aware exon filter to bias selection toward early exons. Ships a Python-3 FastAPI web UI and an interactive setup wizard.",
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "keywords": [
+    "bioinformatics",
+    "CRISPR",
+    "gRNA-design",
+    "zebrafish",
+    "chopchop",
+    "Cas9"
+  ],
+  "creators": [
+    {
+      "name": "Bachu, Abhinav",
+      "affiliation": "Northwestern University"
+    }
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/abachu2005/ZebraCHOP",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.1093/nar/gkz365",
+      "relation": "isDerivedFrom",
+      "scheme": "doi"
+    }
+  ]
+}
