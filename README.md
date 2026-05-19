@@ -4,7 +4,7 @@
 
 ZebraCHOP is a zebrafish-focused fork of [CHOPCHOP](https://chopchop.cbu.uib.no/). It picks high-scoring Cas9/TALEN/Cpf1/Nickase guides for any zebrafish gene, scores them with the published efficiency models (Doench 2016, Xu 2015, …), maps off-targets with Bowtie, and post-processes the output via Ensembl REST to bias selection toward early exons (more likely to produce loss-of-function).
 
-![status: ready](https://img.shields.io/badge/status-ready-brightgreen) ![CLI: Python 2.7](https://img.shields.io/badge/CLI-Python%202.7-orange) ![web: Python 3.9+](https://img.shields.io/badge/web-Python%203.9%2B-blue) ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
+![status: ready](https://img.shields.io/badge/status-ready-brightgreen) ![CLI: Python 2.7](https://img.shields.io/badge/CLI-Python%202.7-orange) ![web: Python 3.9+](https://img.shields.io/badge/web-Python%203.9%2B-blue) ![license: MIT](https://img.shields.io/badge/license-MIT-lightgrey) [![DOI](https://zenodo.org/badge/853115972.svg)](https://zenodo.org/badge/latestdoi/853115972) [![CI](https://github.com/abachu2005/ZebraCHOP/actions/workflows/ci.yml/badge.svg)](https://github.com/abachu2005/ZebraCHOP/actions/workflows/ci.yml)
 
 ---
 
