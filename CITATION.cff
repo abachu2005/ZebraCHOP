@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+title: "ZebraCHOP: CRISPR guide-RNA design for zebrafish with Ensembl-aware filtering"
+message: "If you use this software, please cite both ZebraCHOP and the upstream CHOPCHOP paper."
+type: software
+authors:
+  - family-names: Bachu
+    given-names: Abhinav
+repository-code: "https://github.com/abachu2005/ZebraCHOP"
+url: "https://github.com/abachu2005/ZebraCHOP"
+abstract: >-
+  ZebraCHOP is a zebrafish-focused fork of CHOPCHOP that designs CRISPR
+  gRNAs for any Danio rerio gene, scores them with published efficiency
+  models, maps off-targets with Bowtie, and applies an Ensembl-aware
+  exon filter to bias selection toward early exons. Ships a Python-3
+  FastAPI web UI and an interactive setup wizard.
+keywords:
+  - bioinformatics
+  - CRISPR
+  - gRNA-design
+  - zebrafish
+  - chopchop
+  - Cas9
+license: MIT
+version: "1.0.0"
+date-released: "2026-05-19"
+references:
+  - type: article
+    title: "CHOPCHOP v3: expanding the CRISPR web toolbox beyond genome editing"
+    authors:
+      - family-names: Labun
+        given-names: Kornel
+      - family-names: Montague
+        given-names: Tessa G.
+      - family-names: Krause
+        given-names: Maximilian
+    year: 2019
+    journal: "Nucleic Acids Research"
+    doi: "10.1093/nar/gkz365"
+    notes: "Upstream tool this is forked from. Please cite if you use ZebraCHOP."

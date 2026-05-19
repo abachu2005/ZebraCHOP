@@ -14,12 +14,10 @@ from __future__ import annotations
 import csv
 import json
 import os
-import shutil
 import subprocess
 import threading
 import uuid
 from pathlib import Path
-from typing import Optional
 
 from fastapi import FastAPI, Form, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
