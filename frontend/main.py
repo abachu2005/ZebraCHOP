@@ -173,3 +173,17 @@ def job_tsv(job_id: str, gene: str):
     if not f.exists():
         raise HTTPException(404)
     return FileResponse(str(f), media_type="text/tab-separated-values", filename=f.name)
+
+
+def main() -> None:
+    """Console entry point: launch the ZebraCHOP web frontend via uvicorn."""
+    import os
+    import uvicorn
+
+    host = os.environ.get("ZEBRACHOP_HOST", "127.0.0.1")
+    port = int(os.environ.get("ZEBRACHOP_PORT", "8000"))
+    uvicorn.run("frontend.main:app", host=host, port=port, reload=False)
+
+
+if __name__ == "__main__":
+    main()

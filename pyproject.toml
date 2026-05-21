@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zebrachop"
-version = "1.0.1"
+version = "1.0.2"
 description = "CRISPR gRNA design for zebrafish with Ensembl-aware filtering — Python 3 frontend wrapping the CHOPCHOP engine."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -38,6 +38,9 @@ dev = [
     "httpx>=0.27",
 ]
 
+[project.scripts]
+zebrachop-web = "frontend.main:main"
+
 [project.urls]
 Homepage = "https://github.com/abachu2005/ZebraCHOP"
 Repository = "https://github.com/abachu2005/ZebraCHOP"
@@ -46,10 +49,11 @@ Changelog = "https://github.com/abachu2005/ZebraCHOP/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
 packages = ["frontend"]
+py-modules = ["chopchop_query", "featurization", "reformat"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-frontend = ["*.html"]
+frontend = ["*.html", "data/*", "data/**/*"]
 
 [tool.ruff]
 line-length = 120

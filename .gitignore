@@ -25,3 +25,4 @@ frontend/data/
 
 # Models (download separately)
 models/
+dist/
