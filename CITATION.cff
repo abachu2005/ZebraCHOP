@@ -1,10 +1,17 @@
-cff-version: 1.2.0
+cff-version: 1.3.0
 title: "ZebraCHOP: CRISPR guide-RNA design for zebrafish with Ensembl-aware filtering"
 message: "If you use this software, please cite both ZebraCHOP and the upstream CHOPCHOP paper."
 type: software
 authors:
   - family-names: Bachu
     given-names: Abhinav
+    affiliation: Northwestern University Feinberg School of Medicine
+contributors:
+  - family-names: Parvez
+    given-names: Saba
+    affiliation: Northwestern University Feinberg School of Medicine
+    roles:
+      - supervisor
 repository-code: "https://github.com/abachu2005/ZebraCHOP"
 url: "https://github.com/abachu2005/ZebraCHOP"
 doi: "10.5281/zenodo.20297753"
